@@ -14,7 +14,7 @@ def getUrls():
 
     urls = []
 
-    for websiteUrl in websiteUrls[0:5]:
+    for websiteUrl in websiteUrls:
         resp = httpx.get(websiteUrl, headers=headers, timeout=10)
         html = HTMLParser(resp.text)
 
