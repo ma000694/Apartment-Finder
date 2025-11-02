@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apartment Finder UMN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=BBH+Sans+Bartle&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+    <header> Apartment Finder UMN</header>
+
+    <!-- Filters -->
+    <section class="filters">
+        <input type="text" placeholder="Search area" />
+        <input type="number" placeholder="Min $" />
+        <input type="number" placeholder="Max $" />
+        <select>
+            <option>Beds</option>
+            <option>Studio</option>
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+        </select>
+        <!-- Checks if user wants sublease -->
+        <label class="checkbox">
+            <input type="checkbox" id="sublease" />
+            <span>Sublease?</span>
+        </label>
+        <!-- Dropdown of months when sublease is selected-->
+        <select class="months_select">
+            <option>Lease length</option>
+            <option>1 month</option>
+            <option>3 months</option>
+            <option>6 months</option>
+            <option>12 months</option>
+            <option>Summer</option>
+            <option>Fall</option>
+            <option>Spring</option>
+        </select>
+
+        <button>Search</button>
+    </section>
+
+
+
+</body>
+
+</html>
