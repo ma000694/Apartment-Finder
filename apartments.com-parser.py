@@ -20,7 +20,6 @@ def getAmenities(url):
     tree = HTMLParser(html)
     rentals = tree.css("ul.allAmenities li")
 
-
     for rental in rentals:
         amenity_list.append(rental.text())
     return amenity_list
@@ -32,7 +31,6 @@ def getDetails(url):
 
     tree = HTMLParser(html)
     rentals = tree.css("ul.unit-specs li")
-
 
     for rental in rentals:
         detail_list.append(rental.text())
