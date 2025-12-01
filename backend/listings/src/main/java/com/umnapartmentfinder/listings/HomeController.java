@@ -15,6 +15,5 @@ public class HomeController {
     public String index() {
         System.out.println("appName: " + appName);
         return "index.html";
-    }
-    
+    }   
 }
