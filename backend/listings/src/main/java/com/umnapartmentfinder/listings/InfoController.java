@@ -1,27 +1,30 @@
 package com.umnapartmentfinder.listings;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class SearchController {
+public class InfoController {
     
-    
-    @GetMapping("/search")
-    public String search(@RequestParam String term){
+    @GetMapping("/apartment")
+    public String search(@RequestParam String apartment){
         String file = "src//main//apartmentInfo.csv";
         BufferedReader reader = null;
         String line = "";
-        List<String> outputList = new ArrayList<>();
+        List<String> infoList = new ArrayList<>();
         try {
             reader = new BufferedReader(new FileReader(file));
-            while((line = reader.readLine()) != null) {
+            while(null != (line = reader.readLine())) {
                 String[] row = line.split(",");
-                if (line.contains(term)) {
-                    outputList.add(row[]);
+                if (line.contains(apartment)) {
+                    infoList.add("Price: "+ row[4] + ", " + row[5]);
                 }
             }
         }
@@ -37,8 +40,8 @@ public class SearchController {
             }
         }
 
+        return "Available floor plans at '" + apartment + "':\n\n" + infoList;
 
-        return "Your search for '" + term + "' has loaded:\n\n" + outputList;
+
     }
-    
 }
