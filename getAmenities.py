@@ -7,11 +7,14 @@ def getContent(url):
         browser = p.firefox.launch(headless=True)
         page = browser.new_page()
         page.goto(url, wait_until="domcontentloaded", timeout=0)
-        page.wait_for_selector("ul.allAmenities li")
-        page.wait_for_selector("ul.unit-specs li")
-        page.wait_for_selector("div.available-date-label")
-        page.wait_for_selector("div.specs-header.no-wrap.pricing")
-        page.wait_for_selector("div.specs-header")
+        try:
+            page.wait_for_selector("ul.allAmenities")
+            page.wait_for_selector("ul.unit-specs li")
+            page.wait_for_selector("div.available-date-label")
+            page.wait_for_selector("div.specs-header.no-wrap.pricing")
+            page.wait_for_selector("div.specs-header")
+        except Exception as e:
+            print(f"ERROR: {e} on {url}");        
         html = page.content()
         browser.close()
         return html
