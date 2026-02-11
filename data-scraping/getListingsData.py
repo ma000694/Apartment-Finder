@@ -24,7 +24,8 @@ async def getData(url):
                 address = await getAddress(tree)
                 title = await getTitle(tree)
                 info = await getInfo(tree)
-                amenities = await getAmenities(tree)
+                amenities = [', '.join(await getAmenities(tree))]
+#                amenities = await getAmenities(tree)
             
                 if title not in infoDict:
                     infoDict[title] = {}
@@ -71,21 +72,23 @@ async def goto(browser, url):
 
 async def getUrls(url, browser):
 
-    try:
-        page = await browser.new_page()
-        page.set_default_timeout(60000)  # 60 seconds
-        response = await page.goto(url, wait_until="networkidle")
-        html = await page.content()
-        if "Access Denied" in html or response.status != 200:
-            print("Complete CAPTCHA.")
-            await page.pause()
-            await page.wait_for_timeout(1000)  # wait for 10 seconds
+    for _ in range(5):
+        try:
+            page = await browser.new_page()
+            page.set_default_timeout(60000)  # 60 seconds
+            response = await page.goto(url, wait_until="networkidle")
             html = await page.content()
-    except Exception as e:
-        print(f"Error loading {url} on {e}")
-        await page.close()
-        time.sleep(10)
-        return await getUrls(url, browser)    
+            if "Access Denied" in html or response.status != 200:
+                print("Complete CAPTCHA.")
+                await page.pause()
+                await page.wait_for_timeout(1000)  # wait for 1 seconds
+                html = await page.content()
+        except Exception as e:
+            print(f"Error loading {url} on {e}")
+            await page.close()
+            time.sleep(10)
+        if not("Access Denied" in html or response.status != 200):
+            break
 
     try:
         while await page.locator("div.c-list").count() > 0:
@@ -136,7 +139,7 @@ async def getInfo(tree):
             data = node.css("td")
             dataText = []
             for dp in data:
-                dpText = dp.text().strip().replace("\n","").replace("  ","")
+                dpText = dp.text().strip().replace("\n","").replace("  ","").replace(",","")
                 dataText.append(dpText)
             info[i] = dataText
     except:
@@ -148,7 +151,7 @@ async def getAmenities(tree):
     try:
         nodes = tree.css("div.feature-block.row-extra div#accordion div div ul li")
         for node in nodes:
-            amenity = node.text().strip().replace("\n","").replace("  ","")
+            amenity = node.text().strip().replace("\n","").replace("  ","").replace(",","")
             amenities.append(amenity)
     except:
         amenities = ["Amenities not found"]
