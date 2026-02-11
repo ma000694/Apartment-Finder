@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-ListingsApplication<listings>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.umnapartmentfinder.listings.ListingsApplication",
+            "projectName": "listings",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
