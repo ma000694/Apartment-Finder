@@ -51,6 +51,11 @@ def clean_data(csv_path):
             df.iloc[idx, 5] = None
         idx += 1
 
+    # if price is not divided for each indivudal, do it manually
+    ids = df[df["Price"] > 2000].index
+    for id in ids:
+        df.iloc[id, 5] /= pd.to_numeric(df.iloc[id, 3])
+
     #making each value numeric - if error occurs replaces value with NaN
     df['Price'] = pd.to_numeric(df['Price'], errors='coerce')
     df['Size'] = pd.to_numeric(df['Size'], errors='coerce')
@@ -117,20 +122,25 @@ def recommend_apartments(csv_path, name):
 
     #adding weights
     distance_df["Bathrooms"] *= 5
-    distance_df["Price"] /= 20
+    distance_df["Price"] /= 25
     distance_df["Size"] /= 500
     distance_df["Distance"] *= 40
 
     #calculating similarity using euclidean distance
-    user_similarity = euclidean_distances(distance_df)
+    user_similarity = euclidean_distances(distance_df[["Bedrooms", "Bathrooms", "Size", "Price", "Distance"]])
 
     #finding similar apartments to given id
     similar_apartments = user_similarity[id]
 
-    similar_apartments_indices = np.argsort(similar_apartments)[1:] #shows best 5 similar apartments (ignoring the apartment itself)
+    similar_apartments_indices = np.argsort(similar_apartments)[1:] #shows most similar apartments (ignoring the apartment itself)
     similar_apartments = distance_df.index[similar_apartments_indices] #grabbing indexes of similar apartments
 
-    df.loc[distance_df.loc[similar_apartments]["index"]].to_csv("recommendations.csv")
+    rec_df = df.loc[distance_df.loc[similar_apartments]["index"]]
+
+    #creating csv file with all info on recommended apartments
+    rec_df.to_csv("recommendations.csv")
+
+    return rec_df["Name"][:5]
 
 if __name__ == "__main__":
-    recommend_apartments("umn_apartment_data.csv", "The Quad on Delaware")
+    print(recommend_apartments("umn_apartment_data.csv", "The Quad on Delaware"))
