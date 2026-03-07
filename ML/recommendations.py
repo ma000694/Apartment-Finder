@@ -80,8 +80,7 @@ def find_distance(df):
 
     for address in df["Address"]:
         time.sleep(1) #Nominatim allow max 1 inquiry per second, prevents timeout error
-        #can use a rotating api key to bypass rate limit - but need something that uses api keys
-        
+
         #if address is not already used grab the coordinates of the address
         if address not in address_list: 
             location = geolocator.geocode(address)
