@@ -12,4 +12,4 @@ RUN playwright install-deps chromium
 
 COPY . .
 
-CMD ["python", "data-scraping/getinfo.py"]
+CMD ["python", "data-scraping/getInfo.py"]
