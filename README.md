@@ -68,3 +68,16 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+### Docker
+
+To start using Docker, you'll need to install the application, this can be found here: [https://www.docker.com/products/docker-desktop/] (https://www.docker.com/products/docker-desktop/)
+
+Afterwards, once installed, you'll need to launch the application in the background, once running you'll need to build the environment.
+
+```powershell
+docker compose up --build
+```
+
+This will build the environment and starting running the program
