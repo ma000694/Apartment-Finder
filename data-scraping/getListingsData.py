@@ -69,8 +69,10 @@ async def goTo(browser, url):
             page = await browser.new_page()
             await Stealth().apply_stealth_async(page)  # applying stealth before navigation
 
-            page.set_default_timeout(20000)  # 20 seconds
-            response = await page.goto(url, wait_until="domcontentloaded")
+            page.set_default_timeout(20000)  # 20 seconds, would reduce this down to 10s, but increases err
+            response = await page.goto(url, wait_until="networkidle")
+            # response = await page.goto(url, wait_until="domcontentloaded") # another solution to cutdown time, issue is creates too many errors, 4 instead of 6 returns.
+            
             html = await page.content()
             
             # CAPTCHA catch
@@ -114,8 +116,10 @@ async def getUrls(url, browser):
             page = await browser.new_page()
             await Stealth().apply_stealth_async(page)  # applying stealth before navigation
 
-            page.set_default_timeout(20000)  # 20 seconds
-            response = await page.goto(url, wait_until="domcontentloaded")
+            page.set_default_timeout(20000)  # 20 seconds, would reduce this down to 10s, but increases err
+            response = await page.goto(url, wait_until="networkidle")
+            # response = await page.goto(url, wait_until="domcontentloaded") # another solution to cutdown time, issue is creates too many errors, 4 instead of 6 returns.
+
             html = await page.content()
 
             # CAPTCHA catch

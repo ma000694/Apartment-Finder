@@ -28,4 +28,4 @@ __pycache__/
 *.pyc
 
 # data-scraping csv
-/data-scraping/scaped-csv
+/data-scraping/scraped-csv
