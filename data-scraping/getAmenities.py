@@ -1,6 +1,6 @@
 from selectolax.parser import HTMLParser # parses HTML to return a queryable tree of HTML
 from playwright_stealth import Stealth # stealth plug-in for playwright
-import random
+import random # may be useless, created to "bypass" CAPTCHA, if bot-protection is looking for human behavior. remove if redundant.
 
 # creates browser to access webpage, skipping blank or unavailable/denied... returns live page and it's html
 async def safeGoto(browser, url):
