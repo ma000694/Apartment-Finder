@@ -26,3 +26,6 @@ yarn-error.log*
 venv/
 __pycache__/
 *.pyc
+
+# data-scraping csv
+/data-scraping/scaped-csv

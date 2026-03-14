@@ -1,4 +1,4 @@
-import time, asyncio
+import time, asyncio, os
 from selectolax.parser import HTMLParser # HTML -> HTML Tree
 from playwright.async_api import async_playwright # browser automation
 from playwright_stealth import Stealth
@@ -217,8 +217,13 @@ async def getAmenities(tree):
 async def makeCSV(data, filename):
     import csv
 
+    # output into csv folder, instead data-scraping
+    os.makedirs("scaped-csv", exist_ok= True) # if exist, continue, else create
+
+    filepath = os.path.join("scraped-csv", filename) # build filepath
+
     # open/overwrite file, and write data, using format
-    with open(filename, mode='w', newline='', encoding='utf-8') as file:
+    with open(filepath, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
 
         header = ["Building Name", "Unit Name", "Address", "Beds", "Baths", "Rent", "Sqft", "Availability", "URL", "Amenities"]
