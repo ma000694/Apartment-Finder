@@ -69,8 +69,8 @@ async def goTo(browser, url):
             page = await browser.new_page()
             await Stealth().apply_stealth_async(page)  # applying stealth before navigation
 
-            page.set_default_timeout(60000)  # 60 seconds
-            response = await page.goto(url, wait_until="networkidle")
+            page.set_default_timeout(20000)  # 20 seconds
+            response = await page.goto(url, wait_until="domcontentloaded")
             html = await page.content()
             
             # CAPTCHA catch
@@ -114,8 +114,8 @@ async def getUrls(url, browser):
             page = await browser.new_page()
             await Stealth().apply_stealth_async(page)  # applying stealth before navigation
 
-            page.set_default_timeout(60000)  # 60 seconds
-            response = await page.goto(url, wait_until="networkidle")
+            page.set_default_timeout(20000)  # 20 seconds
+            response = await page.goto(url, wait_until="domcontentloaded")
             html = await page.content()
 
             # CAPTCHA catch
