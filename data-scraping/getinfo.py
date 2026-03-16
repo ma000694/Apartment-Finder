@@ -2,6 +2,7 @@ import time, asyncio
 
 # third-party libraries
 from playwright.async_api import async_playwright # import browser automation library, for Chrome, using async version.
+from playwright_stealth import Stealth # stealth plug-in for playwright
 from getUrls import getAllUrls # function from file getUrls.py -- handles URL discovery.
 from getAmenities import getAmenities, getDetails, getRent, getRoomType, getContent, getPropertyUrl, getPageContent, getNameAndAddress # functions from getAmenities, handles data-extraction from url.
 
@@ -21,7 +22,12 @@ async def getInfo():
     async with async_playwright() as p:
 
         # creates browser instances, with active window, and removes timeout.
-        browser = await p.chromium.launch(headless=False, timeout=0)
+        # browser = await p.chromium.launch(headless=True, timeout=0) # changed headless from false to true, to support Docker
+        browser = await p.chromium.launch(
+            headless=True, # may need to change to false to have visual to complete CAPTCHA
+            timeout=0,
+            args=["--no-sandbox", "--disable-setuid-sandbox"]
+        ) # changed headless from false to true, to support Docker
         
         # loops through each link
         for neighborhood in neighborhoodsMN: # build a list of all of the urls to parse through, right now they correspond to the apartments in these zip codes: 55414, 55454, 55455

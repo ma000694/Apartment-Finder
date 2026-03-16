@@ -1,0 +1,35 @@
+name: Weekly UMN Scraper
+
+on:
+  schedule:
+    - cron: "0 0 * * 0"  # runs every Sunday at midnight UTC
+  workflow_dispatch:       # allows manual trigger from GitHub UI
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
+
+      - name: Run UMN scraper
+        run: python data-scraping/getListingsData.py
+
+      - name: Upload CSV results
+        uses: actions/upload-artifact@v3
+        with:
+          name: umn-scraped-data
+          path: data-scraping/scraped-csv/
+          retention-days: 30
