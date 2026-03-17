@@ -35,8 +35,8 @@ async def getData(url):
                 address = await getAddress(tree)
                 title = await getTitle(tree)
                 info = await getInfo(tree)
-                amenities = [', '.join(await getAmenities(tree))]
-#                amenities = await getAmenities(tree)
+                # amenities = [', '.join(await getAmenities(tree))]
+                amenities = await getAmenities(tree)
             
                 # if property name not in dict, add into dict to add values
                 if title not in infoDict:
