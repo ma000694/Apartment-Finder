@@ -43,16 +43,16 @@ for row in rows:
     print(row) # each row is a tuple
 
 # open csv file
-with open("data.csv", newline="") as f:
-    reader = csv.reader(f)
-    next(reader) # skip a row (the header usually)
+# with open("data.csv", newline="") as f:
+#     reader = csv.reader(f)
+#     next(reader) # skip a row (the header usually)
 
-    for row in reader:
-        address = row[0] # accessing individual columns
-        price = int(row[1])
-        bedrooms = int(row[2])
+#     for row in reader:
+#         address = row[0] # accessing individual columns
+#         price = int(row[1])
+#         bedrooms = int(row[2])
 
-        print(address, price, bedrooms)
+#         print(address, price, bedrooms)
 
 cur.close() # close cursor
 conn.close() # close database connection
