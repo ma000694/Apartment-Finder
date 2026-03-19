@@ -1,4 +1,4 @@
-Building Name,Unit Name,Address,Beds,Baths,Rent,Sqft,Availability,URL,Amenities
+building_name,unit_name,address,beds,baths,rent,sqft,availability,url,amenities
 609 15th Ave SE,#101,609 15th Ave SE Minneapolis MN 55414,4,3,$3300.00,,09-01-2026,https://listings.umn.edu/city/minneapolis-mn/listing/43517,"9 Foot Ceilings, Dishwasher, Oven, Refrigerator, Laundry On-Site"
 609 15th Ave SE,#201,609 15th Ave SE Minneapolis MN 55414,4,4,$3300.00,,09-01-2026,https://listings.umn.edu/city/minneapolis-mn/listing/43517,"9 Foot Ceilings, Dishwasher, Oven, Refrigerator, Laundry On-Site"
 609 15th Ave SE,#301,609 15th Ave SE Minneapolis MN 55414,4,4,$3300.00,,09-01-2026,https://listings.umn.edu/city/minneapolis-mn/listing/43517,"9 Foot Ceilings, Dishwasher, Oven, Refrigerator, Laundry On-Site"

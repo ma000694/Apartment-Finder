@@ -14,24 +14,26 @@ cur = conn.cursor() # create cursor
 
 # create table if doesn't exist already
 cur.execute("""
-CREATE TABLE IF NOT EXISTS apartments(
+CREATE TABLE IF NOT EXISTS properties(
     id SERIAL PRIMARY KEY,
-    address TEXT
-    price INTEGER
-    bedrooms SMALLINT
-    bathrooms SMALLINT
-    area INT
-    availability_date DATE
-    link TEXT
+    building_name TEXT,
+    unit_name TEXT,
+    address TEXT,
+    beds SMALLINT,
+    baths SMALLINT,
+    rent INTEGER,
+    sqft INT,
+    availability DATE,
+    url TEXT,
     amenities TEXT[]
 )
 """)
 
 # open csv file and copy into postgresql
-with open("properties.csv", "r") as f:
+with open("umn_apartment_data.csv", "r") as f:
     cur.copy_expert(
         """
-        COPY properties(address,price,bedrooms,bathrooms,area,availability_date,link,amenities)
+        COPY properties(building_name,unit_name,address,beds,baths,rent,sqft,availability,url,amenities)
         FROM STDIN WITH CSV HEADER
         """,
         f

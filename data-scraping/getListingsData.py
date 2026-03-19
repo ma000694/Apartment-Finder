@@ -214,7 +214,7 @@ async def makeCSV(data, filename):
     with open(filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
 
-        header = ["Building Name", "Unit Name", "Address", "Beds", "Baths", "Rent", "Sqft", "Availability", "URL", "Amenities"]
+        header = ["building_name", "unit_name", "address", "beds", "baths", "rent", "sqft", "availability", "url", "amenities"]
         writer.writerow(header)
 
         for title in data:
