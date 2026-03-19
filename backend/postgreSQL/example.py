@@ -7,9 +7,9 @@ import csv
 # creates connection to the database
 conn = psycopg2.connect(
     host="localhost",
-    database="Apartment Finder",
+    database="postgres",
     user="postgres",
-    password="mypassword",
+    password="read8511",
     port=5432
 )
 

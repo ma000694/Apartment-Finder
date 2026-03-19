@@ -4,9 +4,9 @@ import csv
 # connect to database
 conn = psycopg2.connect(
     host="localhost",
-    database="Apartment Finder",
+    database="postgres",
     user="postgres",
-    password="mypassword",
+    password="read8511",
     port=5432
 )
 
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS properties(
     sqft INT,
     availability DATE,
     url TEXT,
-    amenities TEXT[]
+    amenities TEXT
 )
 """)
 
@@ -38,6 +38,11 @@ with open("umn_apartment_data.csv", "r") as f:
         """,
         f
     )
+
+cur.execute("SELECT * FROM properties")
+rows = cur.fetchall()
+for row in rows:
+    print(row) # each row is a tuple
 
 conn.commit()
 cur.close()

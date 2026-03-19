@@ -3,9 +3,6 @@ import psycopg2
 import csv
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import euclidean_distances
 from geopy.geocoders import Nominatim
 
@@ -168,11 +165,10 @@ def upload_to_postgreSQL(columns):
     with open("recommendations.csv", "r") as f:
         cur.copy_expert(
             """
-            COPY recommendations FROM STDIN WITH DELIMITEr ','
+            COPY recommendations FROM STDIN WITH DELIMITER ','
             """,
             f
         )
-
     
     conn.commit()
     cur.close()
