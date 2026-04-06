@@ -1,0 +1,15 @@
+THIS IS EVERYTHING NEW IN THE FRONTEND:
+- updated apartment cards to include new things:
+    - address, units
+    - added a shortener thing so that any same type of unit with varying sqr feet is condensed
+        - eg two different 1bd 1ba with 900 and 800 ft become one 1bd 1ba 800-900ft
+    - did the same thing with prices lol
+- added windows that appear when clicking on cards, they include:
+    - ammenities
+    - a link to the apartment website
+    - everything that was already on the cards
+    - THREE placeholder cards for whenever the recommendation algorithm works
+- added the search function with minor animations and debouncing
+- beds and bath options should work too now
+- fixed a bunch of minor ui inconsistencies
+- sublease option is still there lol it doesn't do anything
