@@ -2,19 +2,23 @@ name: Weekly UMN Scraper
 
 on:
   schedule:
-    - cron: "0 0 * * 0"  # runs every Sunday at midnight UTC
-  workflow_dispatch:       # allows manual trigger from GitHub UI
+    - cron: "0 0 * * 0"
+  workflow_dispatch:
 
 jobs:
   scrape:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -27,9 +31,10 @@ jobs:
       - name: Run UMN scraper
         run: python data-scraping/getListingsData.py
 
-      - name: Upload CSV results
-        uses: actions/upload-artifact@v4
-        with:
-          name: umn-scraped-data
-          path: data-scraping/scraped-csv/
-          retention-days: 30
+      - name: Commit CSV results to repo
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add data-scraping/scraped-csv/
+          git diff --staged --quiet || git commit -m "Weekly scrape: update housing data $(date +'%Y-%m-%d')"
+          git push
