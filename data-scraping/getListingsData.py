@@ -2,6 +2,8 @@ import time, asyncio, os
 from selectolax.parser import HTMLParser # HTML -> HTML Tree
 from playwright.async_api import async_playwright # browser automation
 from playwright_stealth import Stealth
+from datetime import date
+
 
 # launch browser, scrapes all listing URLs, returns as dictionary of property link and their listings
 async def getData(url):
@@ -35,8 +37,8 @@ async def getData(url):
                 address = await getAddress(tree)
                 title = await getTitle(tree)
                 info = await getInfo(tree)
-                # amenities = [', '.join(await getAmenities(tree))]
-                amenities = await getAmenities(tree)
+                amenity_list = await getAmenities(tree)
+                amenities = "{" + ", ".join(amenity_list) + "}"
             
                 # if property name not in dict, add into dict to add values
                 if title not in infoDict:
@@ -44,10 +46,19 @@ async def getData(url):
                 
                 # iterate through info to unpack listing info (name, bed, baths, etc...)
                 for key in info:
-                    name, beds, baths, rent, sqft, availability = info[key]
-                    data = [address, beds, baths, rent, sqft, availability, url]
-                    data.extend(amenities)
+                    # pad row to 6 fields if site returns fewer columns
+                    row_data = info[key]
+                    while len(row_data) < 6:
+                        row_data.append("not found")
+                    name, beds, baths, rent, sqft, availability = row_data[:6]
+
+                    # replace "Now" with today's date
+                    if "Now" in availability:
+                        availability = date.today().strftime("%m-%d-%Y")
+
+                    data = [address, beds, baths, rent, sqft, availability, url, amenities]
                     infoDict[title][name] = data
+
                 print(f"Completed {url} in {(time.time() - timeStart):.2f} seconds.")
             except Exception as e:
                 print(f"Error processing {url} on {e}")
@@ -107,6 +118,8 @@ async def goTo(browser, url):
 
 # loads listing page, clicks through all listing, and extract list of individual listings' URL. 
 async def getUrls(url, browser):
+    html = ""
+    response = None
 
     # loads page, 5 tries
     for _ in range(5):
@@ -132,7 +145,8 @@ async def getUrls(url, browser):
             print(f"Error loading {url} on {e}")
             await page.close()
             time.sleep(10)
-        if not("Access Denied" in html or response.status != 200):
+        # if not("Access Denied" in html or response.status != 200):
+        if html and response and not ("Access Denied" in html or response.status != 200):
             break
 
     # scroll infinitely to load pages.
@@ -175,7 +189,7 @@ async def getUrls(url, browser):
 # extracts property address, and clean string
 async def getAddress(tree):
     try:
-        address = tree.css_first("span.sub-heading").text().strip().replace("\n","").replace("  ","").replace(",","").replace("SEM", "SE M").replace("StM", "St M").replace("MN5", "MN 5").replace("SMin", "S Min")
+        address = tree.css_first("span.sub-heading").text().strip().replace("\n","").replace("  ","").replace(",","").replace("SEM", "SE M").replace("StM", "St M").replace("MN5", "MN 5").replace("SMin", "S Min") # cleans up text, data cleaning
     except:
         address = "Address not found"
     return address
@@ -183,7 +197,7 @@ async def getAddress(tree):
 # extracts property name, and clean string
 async def getTitle(tree):
     try:
-        title = tree.css_first("div.col-md-12.col-lg-4.headingCampus-detailSec h1").text().strip().replace("\n","").replace("  ","").replace(",","")
+        title = tree.css_first("div.col-md-12.col-lg-4.headingCampus-detailSec h1").text().strip().replace("\n","").replace("  ","").replace(",","") # cleans up text, data cleaning
     except:
         title = "Title not found"
     return title
@@ -198,7 +212,9 @@ async def getInfo(tree):
             data = node.css("td")
             dataText = []
             for dp in data:
-                dpText = dp.text().strip().replace("\n","").replace("  ","").replace(",","")
+                # dpText = dp.text().strip().replace("\n","").replace("  ","").replace(",","")
+                dpText = dp.text().strip().replace("\n","").replace("  ","").replace(",","").replace("$","") # cleans up text, data cleaning
+
                 dataText.append(dpText)
             info[i] = dataText
     except:
@@ -211,7 +227,7 @@ async def getAmenities(tree):
     try:
         nodes = tree.css("div.feature-block.row-extra div#accordion div div ul li")
         for node in nodes:
-            amenity = node.text().strip().replace("\n","").replace("  ","").replace(",","")
+            amenity = node.text().strip().replace("\n","").replace("  ","").replace(",","") # cleans up text, data cleaning
             amenities.append(amenity)
     except:
         amenities = ["Amenities not found"]
@@ -221,10 +237,11 @@ async def getAmenities(tree):
 async def makeCSV(data, filename):
     import csv
 
-    # output into csv folder, instead data-scraping
-    os.makedirs("scaped-csv", exist_ok= True) # if exist, continue, else create
-
-    filepath = os.path.join("scraped-csv", filename) # build filepath
+    # build path relative to this script's location
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    output_dir = os.path.join(script_dir, "scraped-csv")
+    os.makedirs(output_dir, exist_ok=True)
+    filepath = os.path.join(output_dir, filename)
 
     # open/overwrite file, and write data, using format
     with open(filepath, mode='w', newline='', encoding='utf-8') as file:
@@ -239,6 +256,7 @@ async def makeCSV(data, filename):
                 row.extend(data[title][unit])
                 writer.writerow(row)
 
+
 if __name__ == "__main__":
     time_start = time.time()
 
@@ -250,9 +268,3 @@ if __name__ == "__main__":
     apartmentData = asyncio.run(getData("https://listings.umn.edu/listing?category=15"))
     asyncio.run(makeCSV(apartmentData, "umn_apartment_data.csv"))
     print(f"Apartment data extraction completed in {(time.time() - time_start):.2f}")
-
-
-# I want to create a feature that allows the async function to bypass captcha, currently we have to manually solve captcha.
-# I could try and use playwright_stealth, which should theoretically bypass captcha, but making the page believe the browser is an actual user.
-# Currently this program uses async_playwright, which creates an async browser.
-# If I replaced this using stealth this should work?
