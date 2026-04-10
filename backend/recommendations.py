@@ -1,14 +1,7 @@
-import time
-import psycopg2
-import csv
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import euclidean_distances
-from geopy.geocoders import Nominatim
-
+from sqlalchemy import create_engine
 
 def clean_data(csv_path):
     full_df = pd.read_csv(csv_path) #reading csv file
@@ -68,117 +61,25 @@ def clean_data(csv_path):
 
     return df
 
+def recommend_apartments(csv_path, index):
+    engine = create_engine('postgresql://postgres:1Oscar2006@localhost:5432/oscar')
+    similarity_df = pd.read_sql_table('recommendations', con=engine)
 
-def find_distance(df):
-    geolocator = Nominatim(user_agent="apartment-finder") 
-
-    central_address = "207 Church Street SE, Minneapolis, MN 55455" #Lind Hall
-    central_location = geolocator.geocode(central_address) #grabs location
-
-    address_list = []
-
-    lat_list = []
-    long_list = []
-
-    for address in df["Address"]:
-        time.sleep(1) #Nominatim allow max 1 inquiry per second, prevents timeout error
-
-        #if address is not already used grab the coordinates of the address
-        if address not in address_list: 
-            location = geolocator.geocode(address)
-            address_list.append(address) #to check if it has been used
-            
-        try:
-            lat_list.append(location.latitude)
-            long_list.append(location.longitude)
-        except (AttributeError): #will edit later
-            lat_list.append(-1)
-            long_list.append(-1)
-
-    distance_list = []
-
-    for i in range(len(lat_list)):
-        distance = ((central_location.latitude - lat_list[i])**2 + (central_location.latitude - lat_list[i])**2)**0.5 #calculating distance between Lind Hall and given apartment
-        distance_list.append(distance * 10**5 * 1.11 / 1609.34) #distance in miles
-
-    distance_df = pd.concat([df.reset_index(), pd.Series(lat_list), pd.Series(long_list), pd.Series(distance_list)], axis=1)
-
-    distance_df = distance_df[["index", "Bedrooms", "Bathrooms", "Size", "Price", 2]]
-    distance_df.columns.values[-1] = "Distance"
-
-    return distance_df
-
-
-def recommend_apartments(csv_path, name):
+    
     df = clean_data(csv_path)
 
-    id = df[df["Name"] == name].index[0] #choosing the id of the apartment you want to find recommendations for
-    req = df.iloc[id,3] #grabbing # of bedrooms in given id
+    bedrooms = df.iloc[index,4]
+    filtered_df = df[df["Bedrooms"] == bedrooms].drop_duplicates("Name")
 
-    #defining df of all numeric values that has the same amount of bedrooms as a given id
-    matching_df = df[df['Bedrooms'] == req].copy().drop_duplicates("Address")
-    matching_df = matching_df[['Address', 'Bedrooms', 'Bathrooms', 'Size', 'Price']]
+    similar_apartments = similarity_df.iloc[index,filtered_df.index.values]
+    ordered_apartments = similar_apartments.sort_values()[1:]
+    id_list = []
+    for key, val in ordered_apartments.items():
+        id_list.append(int(key[3:]))
+    id_list
+    df = df.iloc[id_list, :]
 
-    distance_df = find_distance(matching_df)
-
-    #adding weights
-    distance_df["Bathrooms"] *= 5
-    distance_df["Price"] /= 25
-    distance_df["Size"] /= 500
-    distance_df["Distance"] *= 40
-
-    #calculating similarity using euclidean distance
-    user_similarity = euclidean_distances(distance_df[["Bedrooms", "Bathrooms", "Size", "Price", "Distance"]])
-    print(len(user_similarity[0]))   
-
-    #finding similar apartments to given id
-    similar_apartments = user_similarity[id]
-
-    similar_apartments_indices = np.argsort(similar_apartments)[1:] #shows most similar apartments (ignoring the apartment itself)
-    similar_apartments = distance_df.index[similar_apartments_indices] #grabbing indexes of similar apartments
-
-    rec_df = df.loc[distance_df.loc[similar_apartments]["index"]]
-
-    #creating csv file with all info on recommended apartments
-    rec_df.to_csv("recommendations.csv")
-
-    columns = ' FLOAT, '.join([str(i) for i in range(len(user_similarity[0] ))])
-
-    upload_to_postgreSQL(columns)
-
-    return rec_df["Name"][:5]
-
-
-def upload_to_postgreSQL(columns):
-    conn = psycopg2.connect(
-        host="localhost",
-        database="oscar",
-        user="postgres",
-        password="mypassword",
-        port=5432
-    )
-
-    cur = conn.cursor()
-
-    # columns is a string like '0 FLOAT, 1 FLOAT, ...'
-    # We want to create a table with columns col0, col1, ...
-    col_defs = ', '.join([f'col{i} FLOAT' for i in range(len(columns.split(",")))])
-    cur.execute(f"""
-    CREATE TABLE IF NOT EXISTS recommendations (
-        {col_defs}
-    )""")
-
-    with open("test.csv", "r") as f:
-        cur.copy_expert(
-            f"COPY recommendations FROM STDIN WITH DELIMITER ','",
-            f
-        )
-
-    #df = pd.read_sql_table(TABLE_NAME, engine)
-
-    conn.commit()
-    cur.close()
-    conn.close()
+    return df.iloc[:5, 0]
 
 if __name__ == "__main__":
-    print(recommend_apartments("umn_apartment_data.csv", "The Quad on Delaware"))
+    print(recommend_apartments("backend/umn_apartment_data.csv", 0))
