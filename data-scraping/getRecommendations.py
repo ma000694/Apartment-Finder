@@ -8,7 +8,34 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.metrics.pairwise import euclidean_distances
 from geopy.geocoders import Nominatim
 
-def clean_data(csv_path):
+def clean_house_data(csv_path):
+    full_house_df = pd.read_csv(csv_path) #reading csv file
+
+    #spliting dataframes between amenities and other data points
+    house_df = full_house_df.iloc[:,:7]
+    house_amenities_df = full_house_df.iloc[:,7:]
+    house_amenities_df
+
+    #loop through all amenities to put into 1 list
+    temp_df = pd.DataFrame()
+    for index, values in house_amenities_df.iterrows():
+        my_list = [values.unique()[:-1]]
+        temp_df = pd.concat([temp_df, pd.Series(my_list)], ignore_index = True)
+
+    #recombining main df with modified amenities df
+    house_df = pd.concat([house_df, temp_df], axis = 1, ignore_index = True)
+
+    #naming columns
+    column_list = ["Address", "Name", "Bedrooms", "Bathrooms", "Price", "Size", "Availability", "Amenities"]
+    column_dic = {}
+    for i in range(len(column_list)):
+        column_dic[house_df.columns.values[i]] = column_list[i]
+
+    house_df = house_df.rename(columns = column_dic)
+    house_df #outputs dataframe
+
+
+def clean_apartment_data(csv_path):
     full_df = pd.read_csv(csv_path) #reading csv file
 
     #spliting dataframes between amenities and other data points
@@ -106,8 +133,11 @@ def find_distance(df):
 
     return distance_df
 
-def create_similarilty_matrix(csv_path):
-    df = clean_data(csv_path)
+def create_similarilty_matrix(csv_path, house = False):
+    if house:
+        df = clean_house_data(csv_path)
+    else:
+        df = clean_apartment_data(csv_path)
 
     distance_df = find_distance(df)
 
